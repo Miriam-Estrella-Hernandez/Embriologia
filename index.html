@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unidad 9: Sistema Nervioso - Embriología Clínica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        medical: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            200: '#bae0fd',
+                            500: '#0284c7',
+                            600: '#0265d2',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        tealmed: {
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .tab-active {
+            border-bottom: 3px solid #0284c7;
+            color: #0284c7;
+            font-weight: 700;
+        }
+        .match-card {
+            transition: all 0.2s ease-in-out;
+        }
+        .match-card.selected {
+            border-color: #0284c7;
+            background-color: #e0effe;
+            transform: scale(1.02);
+        }
+        .match-card.matched {
+            border-color: #10b981;
+            background-color: #d1fae5;
+            opacity: 0.75;
+            cursor: not-allowed;
+        }
+        .match-card.error {
+            border-color: #ef4444;
+            background-color: #fee2e2;
+            animation: shake 0.4s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-filter backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-tr from-medical-600 to-tealmed-500 p-2.5 rounded-xl text-white shadow-md">
+                        <i class="fa-solid fa-brain text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs uppercase tracking-wider font-bold text-medical-600 block">Embriología Médica</span>
+                        <h1 class="text-lg font-heading font-bold text-slate-900 leading-tight">Unidad 9: Sistema Nervioso</h1>
+                    </div>
+                </div>
+                <!-- Navigation Tabs -->
+                <nav class="hidden md:flex space-x-1 lg:space-x-4 text-sm font-medium">
+                    <button onclick="switchTab('sintesis')" id="nav-sintesis" class="px-3 py-2 rounded-md hover:text-medical-600 transition tab-active">
+                        <i class="fa-solid fa-book-open mr-1.5"></i>Síntesis Teórica
+                    </button>
+                    <button onclick="switchTab('caso')" id="nav-caso" class="px-3 py-2 rounded-md hover:text-medical-600 transition">
+                        <i class="fa-solid fa-user-doctor mr-1.5"></i>Caso Clínico (Video)
+                    </button>
+                    <button onclick="switchTab('quiz')" id="nav-quiz" class="px-3 py-2 rounded-md hover:text-medical-600 transition">
+                        <i class="fa-solid fa-clipboard-question mr-1.5"></i>Evaluación
+                    </button>
+                    <button onclick="switchTab('matching')" id="nav-matching" class="px-3 py-2 rounded-md hover:text-medical-600 transition">
+                        <i class="fa-solid fa-puzzle-piece mr-1.5"></i>Unir Términos
+                    </button>
+                </nav>
+            </div>
+        </div>
+        <!-- Mobile Nav Bar -->
+        <div class="flex md:hidden border-t border-slate-100 bg-slate-50 text-xs text-center font-medium overflow-x-auto">
+            <button onclick="switchTab('sintesis')" id="mnav-sintesis" class="flex-1 py-3 px-2 text-medical-600 border-b-2 border-medical-600 font-bold whitespace-nowrap">
+                <i class="fa-solid fa-book-open block text-base mb-1"></i>Síntesis
+            </button>
+            <button onclick="switchTab('caso')" id="mnav-caso" class="flex-1 py-3 px-2 text-slate-600 whitespace-nowrap">
+                <i class="fa-solid fa-user-doctor block text-base mb-1"></i>Caso Clínico
+            </button>
+            <button onclick="switchTab('quiz')" id="mnav-quiz" class="flex-1 py-3 px-2 text-slate-600 whitespace-nowrap">
+                <i class="fa-solid fa-clipboard-question block text-base mb-1"></i>Quiz
+            </button>
+            <button onclick="switchTab('matching')" id="mnav-matching" class="flex-1 py-3 px-2 text-slate-600 whitespace-nowrap">
+                <i class="fa-solid fa-puzzle-piece block text-base mb-1"></i>Unir Términos
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ========================================== -->
+        <!-- ========================================== -->
+        <section id="tab-sintesis" class="space-y-10">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-medical-900 via-medical-800 to-medical-700 text-white rounded-3xl p-8 sm:p-10 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-white">
+                    <i class="fa-solid fa-dna text-9xl"></i>
+                </div>
+                <div class="max-w-3xl relative z-10">
+                    <span class="inline-block px-3 py-1 bg-tealmed-500/30 border border-tealmed-500/50 text-teal-200 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
+                        Compendio de Embriología Médica
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-heading font-extrabold mb-4 leading-tight">
+                        Desarrollo del Sistema Nervioso Central y Periférico
+                    </h2>
+                    <p class="text-slate-200 text-base sm:text-lg leading-relaxed">
+                        Basado estrictamente en la literatura clásica (*Moore - Embriología Clínica* y *Langman*). Explora los mecanismos de la neurulación, vesiculación encefálica, histogénesis y correlaciones clínicas esenciales.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Subtemas Acordeón / Tarjetas -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Lateral Quick Nav -->
+                <div class="lg:col-span-3 space-y-2 hidden lg:block sticky top-24 h-fit">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400 px-3">Subtemas</p>
+                    <a href="#sec-91" class="flex items-center px-3 py-2.5 text-sm font-semibold text-slate-700 rounded-xl hover:bg-medical-50 hover:text-medical-600 transition">
+                        <span class="w-6 h-6 rounded-lg bg-medical-100 text-medical-600 flex items-center justify-center text-xs mr-2.5">9.1</span> Médula Espinal
+                    </a>
+                    <a href="#sec-92" class="flex items-center px-3 py-2.5 text-sm font-semibold text-slate-700 rounded-xl hover:bg-medical-50 hover:text-medical-600 transition">
+                        <span class="w-6 h-6 rounded-lg bg-medical-100 text-medical-600 flex items-center justify-center text-xs mr-2.5">9.2</span> Encéfalo
+                    </a>
+                    <a href="#sec-93" class="flex items-center px-3 py-2.5 text-sm font-semibold text-slate-700 rounded-xl hover:bg-medical-50 hover:text-medical-600 transition">
+                        <span class="w-6 h-6 rounded-lg bg-medical-100 text-medical-600 flex items-center justify-center text-xs mr-2.5">9.3</span> Nervios Craneanos
+                    </a>
+                    <a href="#sec-94" class="flex items-center px-3 py-2.5 text-sm font-semibold text-slate-700 rounded-xl hover:bg-medical-50 hover:text-medical-600 transition">
+                        <span class="w-6 h-6 rounded-lg bg-medical-100 text-medical-600 flex items-center justify-center text-xs mr-2.5">9.4</span> S. N. Autónomo
+                    </a>
+                    <a href="#sec-95" class="flex items-center px-3 py-2.5 text-sm font-semibold text-slate-700 rounded-xl hover:bg-medical-50 hover:text-medical-600 transition">
+                        <span class="w-6 h-6 rounded-lg bg-red-100 text-red-600 flex items-center justify-center text-xs mr-2.5">9.5</span> Contexto Clínico
+                    </a>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="lg:col-span-9 space-y-12">
+
+                    <!-- 9.1 MEDULA ESPINAL -->
+                    <article id="sec-91" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
+                        <div class="flex items-center space-x-3 border-b border-slate-100 pb-4">
+                            <div class="bg-medical-100 text-medical-600 p-3 rounded-xl">
+                                <i class="fa-solid fa-capsules text-xl"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold uppercase text-medical-600 tracking-wider">Sección 9.1</span>
+                                <h3 class="text-2xl font-heading font-bold text-slate-900">Médula Espinal y Tubo Neural</h3>
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                                <h4 class="font-bold text-slate-900 mb-2 text-sm flex items-center text-medical-700">
+                                    <i class="fa-solid fa-microscope mr-2"></i> Inducción Neural & Neurulación
+                                </h4>
+                                <ul class="text-xs sm:text-sm text-slate-600 space-y-2 list-disc list-inside">
+                                    <li><strong>Inducción (Semana 3):</strong> La notocorda y mesodermo paraxial secretan <em>Nogina, Cordina y Folistatina</em> que inhiben a <strong>BMP-4</strong>, predeterminando al ectodermo a convertirse en neuroectodermo (placa neural).</li>
+                                    <li><strong>Cierre de Neuroporos (Semana 4):</strong>
+                                        <ul class="pl-5 space-y-1 list-square">
+                                            <li><strong class="text-medical-700">Neuroporo Craneal (Rostral):</strong> Cierra el <strong>Día 25</strong> (~20 somitas).</li>
+                                            <li><strong class="text-medical-700">Neuroporo Caudal:</strong> Cierra el <strong>Día 27</strong> (~25 somitas).</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-slate-50 p-5 rounded-xl border border-slate-200">
+                                <h4 class="font-bold text-slate-900 mb-2 text-sm flex items-center text-medical-700">
+                                    <i class="fa-solid fa-layer-group mr-2"></i> Histogénesis del Tubo Neural
+                                </h4>
+                                <ul class="text-xs sm:text-sm text-slate-600 space-y-2">
+                                    <li><strong class="text-slate-800">1. Zona Ventricular (Ependimaria):</strong> Capa interna que origina neuroblastos, glioblastos y ependimocitos.</li>
+                                    <li><strong class="text-slate-800">2. Zona Intermedia (Capa del Manto):</strong> Formada por somas neuronales; constituirá la <strong>Sustancia Gris</strong>.</li>
+                                    <li><strong class="text-slate-800">3. Zona Marginal:</strong> Formada por axones y fibras; constituirá la <strong>Sustancia Blanca</strong>.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Organization & Ascenso -->
+                        <div class="space-y-4">
+                            <h4 class="font-bold text-slate-900 text-base">Patrón Dorso-Ventral y Cambio de Nivel Medular</h4>
+                            <div class="grid sm:grid-cols-3 gap-4">
+                                <div class="p-4 bg-blue-50/70 rounded-xl border border-blue-100">
+                                    <span class="text-xs font-bold text-blue-700 uppercase block mb-1">Placas Basales (Ventrales)</span>
+                                    <p class="text-xs text-slate-600">Bajo la influencia de <strong>Sonic Hedgehog (SHH)</strong> de la notocorda. Origina las astas motoras (ventrales y laterales).</p>
+                                </div>
+                                <div class="p-4 bg-purple-50/70 rounded-xl border border-purple-100">
+                                    <span class="text-xs font-bold text-purple-700 uppercase block mb-1">Placas Alares (Dorsales)</span>
+                                    <p class="text-xs text-slate-600">Bajo la influencia de <strong>BMP-4 y BMP-7</strong>. Origina las astas sensitivas (posteriores) de la médula.</p>
+                                </div>
+                                <div class="p-4 bg-emerald-50/70 rounded-xl border border-emerald-100">
+                                    <span class="text-xs font-bold text-emerald-700 uppercase block mb-1">Surco Limitante</span>
+                                    <p class="text-xs text-slate-600">Depresión longitudinal que actúa como frontera entre las regiones motoras (ventrales) y sensitivas (dorsales).</p>
+                                </div>
+                            </div>
+
+                            <!-- Timeline Ascenso -->
+                            <div class="bg-amber-50/60 p-4 rounded-xl border border-amber-200 text-xs sm:text-sm text-amber-900">
+                                <h5 class="font-bold mb-1 flex items-center"><i class="fa-solid fa-arrows-up-down mr-2 text-amber-600"></i>"Ascenso Aparente" de la Médula Espinal por Crecimiento Diferencial:</h5>
+                                <div class="grid grid-cols-3 gap-2 text-center mt-2 font-medium">
+                                    <div class="bg-white p-2 rounded shadow-sm">
+                                        <span class="block text-amber-600 font-bold">Semana 8</span>
+                                        Toda la longitud del conducto (Coccígeo)
+                                    </div>
+                                    <div class="bg-white p-2 rounded shadow-sm">
+                                        <span class="block text-amber-600 font-bold">Recién Nacido</span>
+                                        Nivel Vértebras <strong>L2 - L3</strong>
+                                    </div>
+                                    <div class="bg-white p-2 rounded shadow-sm">
+                                        <span class="block text-amber-600 font-bold">Adulto</span>
+                                        Nivel Vértebras <strong>L1 - L2</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- 9.2 ENCEFALO -->
+                    <article id="sec-92" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 space-y-6">
+                        <div class="flex items-center space-x-3 border-b border-slate-100 pb-4">
+                            <div class="bg-medical-100 text-medical-600 p-3 rounded-xl">
+                                <i class="fa-solid fa-brain text-xl"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold uppercase text-medical-600 tracking-wider">Sección 9.2</span>
+                                <h3 class="text-2xl font-heading font-bold text-slate-900">Desarrollo del Encéfalo</h3>
+                            </div>
+                        </div>
+
+                        <!-- Table Vesicles -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs sm:text-sm border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-700 font-heading">
+                                        <th class="p-3 rounded-l-lg">3 Vesículas Primarias (Sem. 4)</th>
+                                        <th class="p-3">5 Vesículas Secundarias (Sem. 5)</th>
+                                        <th class="p-3">Estructuras Definitivas del Adulto</th>
+                                        <th class="p-3 rounded-r-lg">Cavidad Ventricular</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-slate-600">
+                                    <tr>
+                                        <td class="p-3 font-semibold text-medical-700" rowspan="2">PROSENCÉFALO<br><span class="text-xs font-normal text-slate-400">(Cerebro anterior)</span></td>
+                                        <td class="p-3 font-medium">Telencéfalo</td>
+                                        <td class="p-3">Hemisferios cerebrales, corteza, núcleos basales.</td>
+                                        <td class="p-3">Ventrículos Laterales (1.º y 2.º)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3 font-medium">Diencéfalo</td>
+                                        <td class="p-3">Tálamo, Hipotálamo, Epítalamo, <strong>Copa Óptica (Retina/N. Óptico)</strong>, Neurohipófisis.</td>
+                                        <td class="p-3">Tercer Ventrículo</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3 font-semibold text-medical-700">MESENCÉFALO<br><span class="text-xs font-normal text-slate-400">(Cerebro medio)</span></td>
+                                        <td class="p-3 font-medium">Mesencéfalo</td>
+                                        <td class="p-3">Colículos superiores e inferiores, pedúnculos cerebrales.</td>
+                                        <td class="p-3">Acueducto Cerebral (Silvio)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3 font-semibold text-medical-700" rowspan="2">ROMBENCÉFALO<br><span class="text-xs font-normal text-slate-400">(Cerebro posterior)</span></td>
+                                        <td class="p-3 font-medium">Metencéfalo</td>
+                                        <td class="p-3">Protuberancia (Puente) y <strong>Cerebelo</strong> (de labios rómbicos).</td>
+                                        <td class="p-3">Parte superior del 4.º Ventrículo</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3 font-medium">Mielencéfalo</td>
+                                        <td class="p-3">Bulbo Raquídeo (Médula oblongada).</td>
+                                        <td class="p-3">Parte inferior del 4.º Ventrículo</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Flexuras -->
+                        <div class="grid sm:grid-cols-3 gap-4 pt-2">
+                            <div class="border border-slate-200 p-3.5 rounded-xl bg-slate-50">
+                                <span class="font-bold text-slate-800 block text-xs uppercase mb-1">Flexura Cefálica</span>
+                                <p class="text-xs text-slate-600">En la región del mesencéfalo (semana 4). Cóncava ventralmente.</p>
+                            </div>
+                            <div class="border border-slate-200 p-3.5 rounded-xl bg-slate-50">
+                                <span class="font-bold text-slate-800 block text-xs uppercase mb-1">Flexura Cervical</span>
+                                <p class="text-xs text-slate-600">En la unión entre mielencéfalo y médula espinal (semana 4).</p>
+                            </div>
+                            <div class="border border-slate-200 p-3.5 rounded-xl bg-slate-50">
+                                <span class="font-bold text-slate-800 block text-xs uppercase mb-1">Flexura Pontina</span>
+                                <p class="text-xs text-slate-600">Entre metencéfalo y mielencéfalo (semana 5). Cóncava dorsalmente.</p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- 9.3 & 9.4 NERVIOS Y SNA -->
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <!-- 9.3 Nervios Craneanos -->
+                        <article id="sec-93" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 space-y-4">
+                            <div class="flex items-center space-x-3 border-b border-slate-100 pb-3">
+                                <div class="bg-medical-100 text-medical-600 p-2.5 rounded-xl">
+                                    <i class="fa-solid fa-network-wired text-lg"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold uppercase text-medical-600 tracking-wider">Sección 9.3</span>
+                                    <h3 class="text-xl font-heading font-bold text-slate-900">Nervios Craneanos</h3>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-600">Derivan del tubo neural, la <strong>cresta neural</strong> y las <strong>placodas ectodérmicas</strong> (nasal/olfatoria y ótica).</p>
+                            <div class="space-y-2 text-xs">
+                                <div class="p-2.5 bg-slate-50 rounded-lg">
+                                    <strong class="text-slate-800">Sensoriales Especiales:</strong> Pares I (placoda olfatoria), II (evaginación diencefálica), VIII (placoda ótica).
+                                </div>
+                                <div class="p-2.5 bg-slate-50 rounded-lg">
+                                    <strong class="text-slate-800">Eferentes Somáticos Motor:</strong> Pares III, IV, VI (músculos oculares) y XII (músculos lingual de somitas occipitales).
+                                </div>
+                                <div class="p-2.5 bg-slate-50 rounded-lg">
+                                    <strong class="text-slate-800">Nervios de Arcos Faríngeos:</strong>
+                                    <ul class="list-disc list-inside mt-1 space-y-0.5 text-slate-500">
+                                        <li><strong>Par V (Trigémino):</strong> 1.er Arco Faríngeo</li>
+                                        <li><strong>Par VII (Facial):</strong> 2.º Arco Faríngeo</li>
+                                        <li><strong>Par IX (Glosofaríngeo):</strong> 3.er Arco Faríngeo</li>
+                                        <li><strong>Par X (Vago) y XI:</strong> 4.º a 6.º Arcos Faríngeos</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- 9.4 SNA -->
+                        <article id="sec-94" class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 space-y-4">
+                            <div class="flex items-center space-x-3 border-b border-slate-100 pb-3">
+                                <div class="bg-medical-100 text-medical-600 p-2.5 rounded-xl">
+                                    <i class="fa-solid fa-bolt text-lg"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-bold uppercase text-medical-600 tracking-wider">Sección 9.4</span>
+                                    <h3 class="text-xl font-heading font-bold text-slate-900">Sistema Autónomo (SNA)</h3>
+                                </div>
+                            </div>
+                            <div class="space-y-3 text-xs">
+                                <div class="p-3 bg-slate-50 rounded-lg">
+                                    <strong class="text-medical-700 font-bold block mb-1">S. N. Simpático (Toroacolumbar)</strong>
+                                    Preganglionares surgen del asta lateral (T1-L2). Las células de la <strong>cresta neural</strong> migran en la semana 5 formando las cadenas de ganglios paravertebrales y prevertebrales.
+                                </div>
+                                <div class="p-3 bg-slate-50 rounded-lg">
+                                    <strong class="text-medical-700 font-bold block mb-1">S. N. Parasimpático (Craneosacro)</strong>
+                                    Preganglionares en tronco encefálico (Pares III, VII, IX, X) y médula sacra (S2-S4). La cresta neural migra a las paredes de los órganos formando los <strong>ganglios intramurales</strong> (Plexos de Meissner y Auerbach).
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <!-- 9.5 CONTEXTO CLINICO -->
+                    <article id="sec-95" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-red-200 space-y-6">
+                        <div class="flex items-center space-x-3 border-b border-red-100 pb-4">
+                            <div class="bg-red-100 text-red-600 p-3 rounded-xl">
+                                <i class="fa-solid fa-heart-pulse text-xl"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold uppercase text-red-600 tracking-wider">Sección 9.5</span>
+                                <h3 class="text-2xl font-heading font-bold text-slate-900">Contexto Clínico y Malformaciones</h3>
+                            </div>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+                            <div class="p-4 bg-red-50/50 rounded-xl border border-red-100 space-y-1.5">
+                                <h4 class="font-bold text-red-800 text-base">Espina Bífida Oculta</h4>
+                                <p class="text-slate-600">Defecto de fusión de los arcos vertebrales (L5/S1). Piel intacta, con frecuencia cubierta por un mechón de pelo o lipoma. Asintomática.</p>
+                            </div>
+                            <div class="p-4 bg-red-50/50 rounded-xl border border-red-100 space-y-1.5">
+                                <h4 class="font-bold text-red-800 text-base">Mielomeningocele (Quística)</h4>
+                                <p class="text-slate-600">Fallo de cierre del <strong>neuroporo caudal (Día 27)</strong>. Protrusión de médula y meninges en un saco. Produce déficit motor, sensitivo e hidrocefalia.</p>
+                            </div>
+                            <div class="p-4 bg-red-50/50 rounded-xl border border-red-100 space-y-1.5">
+                                <h4 class="font-bold text-red-800 text-base">Anencefalia (Meroencefalia)</h4>
+                                <p class="text-slate-600">Fallo de cierre del <strong>neuroporo craneal (Día 25)</strong>. Degeneración del encéfalo por exposición al líquido amniótico. Incompatible con la vida.</p>
+                            </div>
+                            <div class="p-4 bg-red-50/50 rounded-xl border border-red-100 space-y-1.5">
+                                <h4 class="font-bold text-red-800 text-base">Malformación de Arnold-Chiari II</h4>
+                                <p class="text-slate-600">Herniación de amígdalas cerebelosas y bulbo raquídeo a través del foramen magno. Asociado casi siempre a mielomeningocele e hidrocefalia.</p>
+                            </div>
+                            <div class="p-4 bg-red-50/50 rounded-xl border border-red-100 space-y-1.5 sm:col-span-2">
+                                <h4 class="font-bold text-red-800 text-base">Enfermedad de Hirschsprung (Megacolon Aganglionar)</h4>
+                                <p class="text-slate-600">Fallo en la migración de las células de la <strong>cresta neural</strong> (semanas 5-7) hacia la pared intestinal. Ausencia de plexos submucosos (Meissner) y mioentéricos (Auerbach), produciendo estreñimiento severo y dilatación colónica.</p>
+                            </div>
+                        </div>
+
+                        <!-- Prevención Ácido Fólico -->
+                        <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 flex items-center space-x-4">
+                            <div class="text-emerald-600 text-3xl">
+                                <i class="fa-solid fa-pills"></i>
+                            </div>
+                            <div class="text-xs sm:text-sm text-emerald-900">
+                                <strong>Prevención Fundamental con Ácido Fólico:</strong>
+                                La administración de <strong>400 µg/día</strong> de ácido fólico desde 1 a 2 meses antes de la concepción y durante el primer trimestre previene hasta un <strong>70%</strong> de los Defectos del Tubo Neural (DTN).
+                            </div>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- ========================================== -->
+        <section id="tab-caso" class="hidden space-y-8">
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+                <div class="border-b border-slate-100 pb-4">
+                    <span class="text-xs font-bold uppercase text-medical-600 tracking-wider">Análisis Interactivo Clínico</span>
+                    <h2 class="text-2xl sm:text-3xl font-heading font-bold text-slate-900">Caso de Estudio: Anencefalia</h2>
+                    <p class="text-sm text-slate-600 mt-1">
+                        Observa la explicación docente del <strong>Dr. Marcelo Corte</strong> sobre la anencefalia y responde las preguntas de verificación basadas en su exposición.
+                    </p>
+                </div>
+
+                <!-- Video Frame Embed -->
+                <div class="grid lg:grid-cols-12 gap-8 items-start">
+                    <div class="lg:col-span-7 space-y-3">
+                        <div class="aspect-video w-full rounded-2xl overflow-hidden shadow-lg bg-black">
+                            <iframe 
+                                class="w-full h-full"
+                                src="https://www.youtube.com/embed/yuJwMNNDDQQ" 
+                                title="Qué es la Anencefalia - Dr. Marcelo Corte"
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                        <div class="text-xs text-slate-500 flex items-center justify-between px-1">
+                            <span><i class="fa-brands fa-youtube text-red-600 mr-1"></i> Fuente: Dr. Marcelo Corte</span>
+                            <span>Duración: ~2 min</span>
+                        </div>
+                    </div>
+
+                    <!-- Video Quiz Questionnaire -->
+                    <div class="lg:col-span-5 bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-5">
+                        <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                            <h3 class="font-heading font-bold text-slate-900 text-lg">Cuestionario del Video</h3>
+                            <span id="case-score" class="text-xs font-bold px-2.5 py-1 bg-medical-100 text-medical-700 rounded-full">0/6 Completadas</span>
+                        </div>
+
+                        <form id="case-form" class="space-y-4 text-xs sm:text-sm">
+                            <!-- Q1 -->
+                            <div class="space-y-1.5">
+                                <label class="font-semibold text-slate-800 block">1. ¿Cómo define el Dr. Corte la Anencefalia?</label>
+                                <select name="vq1" class="w-full p-2 bg-white border border-slate-300 rounded-lg text-slate-700 text-xs focus:ring-2 focus:ring-medical-500">
+                                    <option value="">-- Selecciona una respuesta --</option>
+                                    <option value="a">Un tumor intrauterino benigno del cerebelo</option>
+                                    <option value="b">Defecto del tubo neural con ausencia parcial o total de cerebro, cráneo y piel</option>
+                                    <option value="c">Una acumulación leve de LCR en los ventrículos laterales</option>
+                                </select>
+                            </div>
+
+                            <!-- Q2 -->
+                            <div class="space-y-1.5">
+                                <label class="font-semibold text-slate-800 block">2. ¿Cuál es el pronóstico de vida de un feto anencefálico?</label>
+                                <select name="vq2" class="w-full p-2 bg-white border border-slate-300 rounded-lg text-slate-700 text-xs focus:ring-2 focus:ring-medical-500">
+                                    <option value="">-- Selecciona una respuesta --</option>
+                                    <option value="a">Nacen muertos o sobreviven solo unas pocas horas o días</option>
+                                    <option value="b">Llegan a la adultez con ligero retraso psicomotor</option>
+                                    <option value="c">Tienen esperanza de vida normal tras cirugía intrauterina</option>
+                                </select>
+                            </div>
+
+                            <!-- Q3 -->
+                            <div class="space-y-1.5">
+                                <label class="font-semibold text-slate-800 block">3. ¿Cuál es la incidencia reportada en el video?</label>
+                                <select name="vq3" class="w-full p-2 bg-white border border-slate-300 rounded-lg text-slate-700 text-xs focus:ring-2 focus:ring-medical-500">
+                                    <option value="">-- Selecciona una respuesta --</option>
+                                    <option value="a">1 de cada 10,000 nacimientos</option>
+                                    <option value="b">0.5 a 1 por cada 1,000 nacimientos</option>
+                                    <option value="c">5 de cada 100 nacimientos</option>
+                                </select>
+                            </div>
+
+                            <!-- Q4 -->
+                            <div class="space-y-1.5">
+                                <label class="font-semibold text-slate-800 block">4. ¿Cuáles factores de riesgo/etiológicos se mencionan?</label>
+                                <select name="vq4" class="w-full p-2 bg-white border border-slate-300 rounded-lg text-slate-700 text-xs focus:ring-2 focus:ring-medical-500">
+                                    <option value="">-- Selecciona una respuesta --</option>
+                                    <option value="a">Pesticidas, radiaciones, déficit de ácido fólico y anomalías cromosómicas</option>
+                                    <option value="b">Exceso de vitamina C y ejercicio materno elevado</option>
+                                    <option value="c">Incompatibilidad de grupo sanguíneo ABO únicamente</option>
+                                </select>
+                            </div>
+
+                            <!-- Q5 -->
+                            <div class="space-y-1.5">
+                                <label class="font-semibold text-slate-800 block">5. ¿Cuál es la recomendación profiláctica clave?</label>
+                                <select name="vq5" class="w-full p-2 bg-white border border-slate-300 rounded-lg text-slate-700 text-xs focus:ring-2 focus:ring-medical-500">
+                                    <option value="">-- Selecciona una respuesta --</option>
+                                    <option value="a">Tomar antibióticos en el segundo trimestre</option>
+                                    <option value="b">Ácido fólico 1 a 2 meses antes del embarazo y primeros 3 meses</option>
+                                    <option value="c">Evitar el consumo de lácteos durante la gestación</option>
+                                </select>
+                            </div>
+
+                            <!-- Q6 -->
+                            <div class="space-y-1.5">
+                                <label class="font-semibold text-slate-800 block">6. ¿Cómo se efectúa el diagnóstico prenatal?</label>
+                                <select name="vq6" class="w-full p-2 bg-white border border-slate-300 rounded-lg text-slate-700 text-xs focus:ring-2 focus:ring-medical-500">
+                                    <option value="">-- Selecciona una respuesta --</option>
+                                    <option value="a">Ecografía tras los 3 meses y elevación de alfafetoproteína en líquido amniótico</option>
+                                    <option value="b">Radiografía simple de tórax a la madre en la semana 4</option>
+                                    <option value="c">Aspirado de médula ósea materna</option>
+                                </select>
+                            </div>
+
+                            <button type="button" onclick="evaluateCaseQuiz()" class="w-full py-2.5 bg-medical-600 hover:bg-medical-700 text-white font-bold rounded-xl shadow transition text-xs uppercase tracking-wider">
+                                Evaluar Respuestas
+                            </button>
+                        </form>
+
+                        <div id="case-feedback" class="hidden p-3.5 rounded-xl text-xs font-medium"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- ========================================== -->
+        <section id="tab-quiz" class="hidden space-y-8">
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 max-w-4xl mx-auto space-y-6">
+                <div class="border-b border-slate-100 pb-4 text-center">
+                    <span class="text-xs font-bold uppercase text-medical-600 tracking-wider">Evaluación Formativa</span>
+                    <h2 class="text-2xl sm:text-3xl font-heading font-bold text-slate-900">Quiz de Embriología del Sistema Nervioso</h2>
+                    <p class="text-sm text-slate-600 mt-1">Responde las preguntas de opción múltiple para poner a prueba tus conocimientos sobre la Unidad 9.</p>
+                </div>
+
+                <div id="quiz-container" class="space-y-6">
+                    <!-- Dynamic Question Inserted by JS -->
+                </div>
+
+                <!-- Quiz Controls -->
+                <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                    <button id="prev-btn" onclick="prevQuestion()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg disabled:opacity-50" disabled>
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Anterior
+                    </button>
+                    <span id="quiz-progress" class="text-xs font-semibold text-slate-500">Pregunta 1 de 6</span>
+                    <button id="next-btn" onclick="nextQuestion()" class="px-4 py-2 bg-medical-600 hover:bg-medical-700 text-white text-xs font-bold rounded-lg">
+                        Siguiente <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+
+                <!-- Quiz Results Area -->
+                <div id="quiz-result" class="hidden text-center p-6 bg-slate-50 rounded-2xl space-y-4">
+                    <h3 class="text-2xl font-bold font-heading text-slate-900">¡Quiz Finalizado!</h3>
+                    <div id="quiz-score-display" class="text-4xl font-extrabold text-medical-600">0 / 6</div>
+                    <p id="quiz-eval-text" class="text-sm text-slate-600 max-w-md mx-auto"></p>
+                    <button onclick="resetQuiz()" class="px-6 py-2.5 bg-medical-600 text-white rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-medical-700 transition">
+                        Reintentar Quiz
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- ========================================== -->
+        <section id="tab-matching" class="hidden space-y-8">
+            <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+                <div class="border-b border-slate-100 pb-4 text-center">
+                    <span class="text-xs font-bold uppercase text-tealmed-600 tracking-wider">Juego de Relación de Conceptos</span>
+                    <h2 class="text-2xl sm:text-3xl font-heading font-bold text-slate-900">Emparejamiento de Términos Embriológicos</h2>
+                    <p class="text-sm text-slate-600 mt-1">Selecciona un concepto de la columna izquierda y haz clic en su definición o derivado correspondiente en la columna derecha.</p>
+                </div>
+
+                <div id="matching-game" class="grid md:grid-cols-2 gap-6">
+                    <!-- Left Column: Terms -->
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 px-1">Estructura / Concepto</h3>
+                        <div id="terms-column" class="space-y-2.5"></div>
+                    </div>
+
+                    <!-- Right Column: Definitions -->
+                    <div class="space-y-3">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 px-1">Derivado / Correlación Clínica</h3>
+                        <div id="defs-column" class="space-y-2.5"></div>
+                    </div>
+                </div>
+
+                <!-- Game Status & Reset -->
+                <div class="flex justify-between items-center pt-4 border-t border-slate-100 text-xs">
+                    <span id="match-status" class="font-bold text-slate-600">Parejas encontradas: 0 / 6</span>
+                    <button onclick="resetMatchingGame()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg transition">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Reiniciar Juego
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <p class="font-semibold text-slate-300">Unidad 9: Sistema Nervioso - Embriología Clínica Médica</p>
+            <p>Basado en Keith L. Moore (*Embriología Clínica*) y T.W. Sadler (*Langman*).</p>
+            <p class="text-slate-500">Diseñado para aprendizaje médico interactivo y revisión de conceptos esenciales de examen.</p>
+        </div>
+    </footer>
+
+    <script>
+        /* ===================================================
+           1. TAB SWITCHING LOGIC
+           =================================================== */
+        function switchTab(tabId) {
+            const tabs = ['sintesis', 'caso', 'quiz', 'matching'];
+            tabs.forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                const nav = document.getElementById(`nav-${t}`);
+                const mnav = document.getElementById(`mnav-${t}`);
+                
+                if (t === tabId) {
+                    el.classList.remove('hidden');
+                    if (nav) nav.classList.add('tab-active');
+                    if (mnav) {
+                        mnav.classList.add('text-medical-600', 'border-b-2', 'border-medical-600', 'font-bold');
+                        mnav.classList.remove('text-slate-600');
+                    }
+                } else {
+                    el.classList.add('hidden');
+                    if (nav) nav.classList.remove('tab-active');
+                    if (mnav) {
+                        mnav.classList.remove('text-medical-600', 'border-b-2', 'border-medical-600', 'font-bold');
+                        mnav.classList.add('text-slate-600');
+                    }
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* ===================================================
+           2. CLINICAL CASE (VIDEO) QUIZ EVALUATION
+           =================================================== */
+        const caseAnswers = {
+            vq1: 'b',
+            vq2: 'a',
+            vq3: 'b',
+            vq4: 'a',
+            vq5: 'b',
+            vq6: 'a'
+        };
+
+        function evaluateCaseQuiz() {
+            const form = document.getElementById('case-form');
+            let correct = 0;
+            let total = Object.keys(caseAnswers).length;
+
+            for (let q in caseAnswers) {
+                const val = form[q].value;
+                if (val === caseAnswers[q]) {
+                    correct++;
+                }
+            }
+
+            const scoreBadge = document.getElementById('case-score');
+            const feedback = document.getElementById('case-feedback');
+
+            scoreBadge.textContent = `${correct}/${total} Correctas`;
+
+            feedback.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-red-100', 'text-red-800', 'bg-amber-100', 'text-amber-800');
+
+            if (correct === total) {
+                feedback.classList.add('bg-emerald-100', 'text-emerald-800');
+                feedback.innerHTML = `<i class="fa-solid fa-circle-check mr-1.5"></i> <strong>¡Excelente!</strong> Has respondido perfectamente todas las preguntas sobre la anencefalia expuestas por el Dr. Corte.`;
+            } else if (correct >= 3) {
+                feedback.classList.add('bg-amber-100', 'text-amber-800');
+                feedback.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> <strong>Buen intento.</strong> Tuviste ${correct} de ${total} correctas. Revisa nuevamente el video para afinar detalles.`;
+            } else {
+                feedback.classList.add('bg-red-100', 'text-red-800');
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1.5"></i> Obtuviste ${correct} de ${total}. Te sugerimos ver con atención el video y volver a evaluar.`;
+            }
+        }
+
+        /* ===================================================
+           3. MAIN EMBRYOLOGY MULTIPLE CHOICE QUIZ
+           =================================================== */
+        const quizData = [
+            {
+                question: "¿En qué día gestacional promedio se produce el cierre del Neuroporo Caudal?",
+                options: ["Día 21", "Día 25", "Día 27", "Día 32"],
+                correct: 2,
+                explanation: "El neuroporo craneal cierra el día 25, mientras que el neuroporo caudal cierra aproximadamente el día 27."
+            },
+            {
+                question: "¿Cuál es el factor de señalización encargado de inducir la diferenciación de las Placas Basales (motoras)?",
+                options: ["BMP-4", "Sonic Hedgehog (SHH)", "FGF-8", "Nogina"],
+                correct: 1,
+                explanation: "SHH secretado por la notocorda y la placa del suelo induce el patrón motor ventral en las placas basales."
+            },
+            {
+                question: "¿De cuál vesícula secundaria se originan la Retina y la Copa Óptica?",
+                options: ["Telencéfalo", "Diencéfalo", "Mesencéfalo", "Metencéfalo"],
+                correct: 1,
+                explanation: "El diencéfalo evagina para formar las vesículas ópticas, que darán origen a la retina y al nervio óptico."
+            },
+            {
+                question: "¿Dónde termina el cono medular en un recién nacido a término?",
+                options: ["Nivel Coccígeo", "Nivel L1 - L2", "Nivel L2 - L3", "Nivel S1 - S2"],
+                correct: 2,
+                explanation: "Debido al crecimiento diferencial de la columna vertebral, la médula termina en L2-L3 en el recién nacido y alcanza L1-L2 en el adulto."
+            },
+            {
+                question: "La ausencia de células de la cresta neural en la pared intestinal (semanas 5-7) genera:",
+                options: ["Malformación de Arnold-Chiari", "Enfermedad de Hirschsprung", "Anencefalia", "Mielomeningocele"],
+                correct: 1,
+                explanation: "La enfermedad de Hirschsprung (megacolon aganglionar) ocurre por fallo de migración de la cresta neural a los plexos submucosos y mioentéricos."
+            },
+            {
+                question: "¿Qué dosis de ácido fólico se recomienda administrar pregestacionalmente para prevenir DTN?",
+                options: ["100 µg/día", "400 µg/día", "5 mg/día", "10 mg/día"],
+                correct: 1,
+                explanation: "La suplementación con 400 µg/día (0.4 mg) de ácido fólico reduce hasta en un 70% la aparición de Defectos del Tubo Neural."
+            }
+        ];
+
+        let currentQuizIndex = 0;
+        let userQuizAnswers = Array(quizData.length).fill(null);
+
+        function renderQuestion() {
+            const container = document.getElementById('quiz-container');
+            const data = quizData[currentQuizIndex];
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <span class="text-xs font-bold text-medical-600 bg-medical-50 px-2.5 py-1 rounded-md uppercase">Pregunta ${currentQuizIndex + 1}</span>
+                    <h3 class="text-lg font-bold text-slate-900">${data.question}</h3>
+                    <div class="space-y-2.5">
+                        ${data.options.map((opt, i) => `
+                            <button onclick="selectQuizOption(${i})" class="w-full text-left p-3.5 rounded-xl border ${userQuizAnswers[currentQuizIndex] === i ? 'border-medical-600 bg-medical-50 font-semibold text-medical-800' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'} text-xs sm:text-sm transition flex items-center justify-between">
+                                <span>${String.fromCharCode(65 + i)}. ${opt}</span>
+                                ${userQuizAnswers[currentQuizIndex] === i ? '<i class="fa-solid fa-circle-check text-medical-600"></i>' : ''}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('quiz-progress').textContent = `Pregunta ${currentQuizIndex + 1} de ${quizData.length}`;
+            document.getElementById('prev-btn').disabled = currentQuizIndex === 0;
+            document.getElementById('next-btn').textContent = currentQuizIndex === quizData.length - 1 ? 'Finalizar' : 'Siguiente';
+        }
+
+        function selectQuizOption(index) {
+            userQuizAnswers[currentQuizIndex] = index;
+            renderQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuizIndex < quizData.length - 1) {
+                currentQuizIndex++;
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuizIndex > 0) {
+                currentQuizIndex--;
+                renderQuestion();
+            }
+        }
+
+        function finishQuiz() {
+            let score = 0;
+            userQuizAnswers.forEach((ans, idx) => {
+                if (ans === quizData[idx].correct) score++;
+            });
+
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.querySelector('#tab-quiz .flex.justify-between').classList.add('hidden');
+            
+            const resultDiv = document.getElementById('quiz-result');
+            resultDiv.classList.remove('hidden');
+
+            document.getElementById('quiz-score-display').textContent = `${score} / ${quizData.length}`;
+            
+            const evalText = document.getElementById('quiz-eval-text');
+            if (score === quizData.length) {
+                evalText.textContent = "¡Dominio total de la embriología del Sistema Nervioso! Has respondido correctamente todas las preguntas de examen.";
+            } else if (score >= 4) {
+                evalText.textContent = "¡Buen trabajo! Tienes un sólido conocimiento del tema. Revisa los puntos teóricos donde tuviste dudas.";
+            } else {
+                evalText.textContent = "Te sugerimos repasar la sección de Síntesis Teórica y volver a intentar la evaluación.";
+            }
+        }
+
+        function resetQuiz() {
+            currentQuizIndex = 0;
+            userQuizAnswers = Array(quizData.length).fill(null);
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.querySelector('#tab-quiz .flex.justify-between').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        /* ===================================================
+           4. MATCHING TERM GAME LOGIC
+           =================================================== */
+        const matchPairs = [
+            { id: 1, term: "Telencéfalo", def: "Hemisferios cerebrales y ventrículos laterales" },
+            { id: 2, term: "Placa Basal", def: "Función motora ventromedial (SHH)" },
+            { id: 3, term: "Neuroporo Caudal", def: "Cierra el día 27 de gestación" },
+            { id: 4, term: "Diencéfalo", def: "Copa óptica, retina y neurohipófisis" },
+            { id: 5, term: "Mielomeningocele", def: "Herniación quística de médula y meninges" },
+            { id: 6, term: "Megacolon Aganglionar", def: "Fallo de migración de la cresta neural" }
+        ];
+
+        let selectedTerm = null;
+        let selectedDef = null;
+        let matchedIds = [];
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function initMatchingGame() {
+            const termsCol = document.getElementById('terms-column');
+            const defsCol = document.getElementById('defs-column');
+
+            termsCol.innerHTML = '';
+            defsCol.innerHTML = '';
+            matchedIds = [];
+            selectedTerm = null;
+            selectedDef = null;
+            updateMatchStatus();
+
+            const shuffledTerms = shuffle([...matchPairs]);
+            const shuffledDefs = shuffle([...matchPairs]);
+
+            shuffledTerms.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = `match-card w-full text-left p-3.5 rounded-xl border border-slate-200 bg-white font-medium text-xs sm:text-sm text-slate-800 hover:border-medical-400`;
+                btn.dataset.id = item.id;
+                btn.innerHTML = `<i class="fa-solid fa-cube text-medical-500 mr-2"></i> ${item.term}`;
+                btn.onclick = () => handleTermClick(btn, item.id);
+                termsCol.appendChild(btn);
+            });
+
+            shuffledDefs.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = `match-card w-full text-left p-3.5 rounded-xl border border-slate-200 bg-white font-medium text-xs sm:text-sm text-slate-700 hover:border-tealmed-400`;
+                btn.dataset.id = item.id;
+                btn.innerHTML = `<i class="fa-solid fa-circle-info text-tealmed-500 mr-2"></i> ${item.def}`;
+                btn.onclick = () => handleDefClick(btn, item.id);
+                defsCol.appendChild(btn);
+            });
+        }
+
+        function handleTermClick(btn, id) {
+            if (matchedIds.includes(id)) return;
+            document.querySelectorAll('#terms-column .match-card').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedTerm = { element: btn, id: id };
+            checkMatch();
+        }
+
+        function handleDefClick(btn, id) {
+            if (matchedIds.includes(id)) return;
+            document.querySelectorAll('#defs-column .match-card').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedDef = { element: btn, id: id };
+            checkMatch();
+        }
+
+        function checkMatch() {
+            if (selectedTerm && selectedDef) {
+                if (selectedTerm.id === selectedDef.id) {
+                    // Match Success
+                    selectedTerm.element.classList.remove('selected');
+                    selectedDef.element.classList.remove('selected');
+                    selectedTerm.element.classList.add('matched');
+                    selectedDef.element.classList.add('matched');
+
+                    matchedIds.push(selectedTerm.id);
+                    selectedTerm = null;
+                    selectedDef = null;
+                    updateMatchStatus();
+                } else {
+                    // Match Error
+                    const t = selectedTerm.element;
+                    const d = selectedDef.element;
+
+                    t.classList.add('error');
+                    d.classList.add('error');
+
+                    setTimeout(() => {
+                        t.classList.remove('selected', 'error');
+                        d.classList.remove('selected', 'error');
+                    }, 500);
+
+                    selectedTerm = null;
+                    selectedDef = null;
+                }
+            }
+        }
+
+        function updateMatchStatus() {
+            const status = document.getElementById('match-status');
+            status.textContent = `Parejas encontradas: ${matchedIds.length} / ${matchPairs.length}`;
+            if (matchedIds.length === matchPairs.length) {
+                status.innerHTML = `<span class="text-emerald-600 font-bold"><i class="fa-solid fa-trophy mr-1"></i> ¡Felicitaciones! Has completado todas las parejas correctamente.</span>`;
+            }
+        }
+
+        function resetMatchingGame() {
+            initMatchingGame();
+        }
+
+        /* ===================================================
+           INITIALIZATION ON LOAD
+           =================================================== */
+        window.onload = function() {
+            renderQuestion();
+            initMatchingGame();
+        };
+    </script>
+</body>
+</html>
